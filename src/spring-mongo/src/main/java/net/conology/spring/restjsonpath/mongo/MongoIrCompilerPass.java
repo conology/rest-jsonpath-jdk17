@@ -36,14 +36,19 @@ public class MongoIrCompilerPass {
     }
 
     public MongoPropertyCondition compilePropertyTest(PropertyFilterNode filterNode) {
-        return switch (filterNode) {
-            case RelativeValueComparingNode comparingFilter -> compilePropertyTest(comparingFilter);
-            case ExistenceFilterNode existenceFilter -> compilePropertyTest(existenceFilter);
-            case RegexFilterNode regexFilterNode -> compilePropertyTest(regexFilterNode);
-            case AndFilterNode ignored ->
-                throw new IllegalArgumentException("nested and expressions are not supported");
-        };
+        if (filterNode instanceof RelativeValueComparingNode comparingFilter) {
+            return compilePropertyTest(comparingFilter);
+        } else if (filterNode instanceof ExistenceFilterNode existenceFilter) {
+            return compilePropertyTest(existenceFilter);
+        } else if (filterNode instanceof RegexFilterNode regexFilterNode) {
+            return compilePropertyTest(regexFilterNode);
+        } else if (filterNode instanceof AndFilterNode) {
+            throw new IllegalArgumentException("nested and expressions are not supported");
+        } else {
+            throw new IllegalArgumentException("Unknown PropertyFilterNode type: " + filterNode);
+        }
     }
+
     private MongoPropertyCondition compilePropertyTest(RegexFilterNode node) {
         var assertion = new RegexMongoValueAssertion(node);
         return compilePropertyTest(node.getRelativeQueryNode(), assertion);

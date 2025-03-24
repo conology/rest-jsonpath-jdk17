@@ -23,10 +23,12 @@ public class MongoValueComparingAssertion implements MongoValueAssertion {
 
     @Override
     public void apply(Criteria criteria) {
-        switch (value) {
-            case ValueNode.SPECIAL_VALUE.NULL -> applyUnorderedComparison(criteria, null);
-            case Boolean ignored -> applyUnorderedComparison(criteria, ignored);
-            default -> applyStandardComparison(criteria);
+        if (value == ValueNode.SPECIAL_VALUE.NULL) {
+            applyUnorderedComparison(criteria, null);
+        } else if (value instanceof Boolean b) {
+            applyUnorderedComparison(criteria, b);
+        } else {
+            applyStandardComparison(criteria);
         }
     }
 

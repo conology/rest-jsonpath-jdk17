@@ -70,22 +70,25 @@ public class NestedValueTestCompiler {
 
         while (nodes.hasNext()) {
             var next = nodes.peek();
-            var handled = switch (next) {
-                case SelectorNode.Constant.WILDCARD -> true;
-                case IndexSelectorNode indexSelectorNode -> {
-                    path.add(Integer.toString(indexSelectorNode.getIndex()));
-                    yield true;
-                }
-                case UnsafeFieldSelector it -> {
-                    path.add(it.getFieldName());
-                    yield true;
-                }
-                case FieldSelectorNode fieldSelectorNode -> {
-                    path.addAll(fieldSelectorNode.getPath());
-                    yield true;
-                }
-                case PropertyFilterNode ignored -> false;
-            };
+            boolean handled;
+
+            if (next == SelectorNode.Constant.WILDCARD) {
+                handled = true;
+            } else if (next instanceof IndexSelectorNode indexSelectorNode) {
+                path.add(Integer.toString(indexSelectorNode.getIndex()));
+                handled = true;
+            } else if (next instanceof UnsafeFieldSelector it) {
+                path.add(it.getFieldName());
+                handled = true;
+            } else if (next instanceof FieldSelectorNode fieldSelectorNode) {
+                path.addAll(fieldSelectorNode.getPath());
+                handled = true;
+            } else if (next instanceof PropertyFilterNode) {
+                handled = false;
+            } else {
+                throw new IllegalArgumentException("Unknown SelectorNode type: " + next);
+            }
+
             if (handled) {
                 nodes.next();
             } else {
@@ -105,9 +108,11 @@ public class NestedValueTestCompiler {
             if (next instanceof PropertyFilterNode filterNode) {
                 nodes.next();
                 var testNode = parent.compileTestNode(filterNode);
-                switch (testNode) {
-                    case MongoAllOfSelector allOf -> propertyTests.addAll(allOf.getTests());
-                    case MongoPropertyCondition propertyTest -> propertyTests.add(propertyTest);
+                if (testNode instanceof MongoAllOfSelector allOf) {
+                    propertyTests.addAll(allOf.getTests());
+                }
+                else if (testNode instanceof MongoPropertyCondition propertyTest) {
+                    propertyTests.add(propertyTest);
                 }
             } else {
                 break;

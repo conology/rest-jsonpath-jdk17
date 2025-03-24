@@ -46,7 +46,7 @@ public class JsonPathCompilerPass {
             .map(this::transform)
             .toList();
 
-        return expressions.size() == 1 ? expressions.getFirst()
+        return expressions.size() == 1 ? expressions.get(0)
             : new AndFilterNode(expressions);
     }
 
@@ -278,10 +278,13 @@ public class JsonPathCompilerPass {
         TerminalNode operator,
         TerminalNode regex
     ) {
+        if (operator.getText() == null) {
+            throw failParserLexerMismatch();
+        }
         var isNegated = switch (operator.getText()) {
             case "=~" -> false;
             case "!~" -> true;
-            case null, default -> throw failParserLexerMismatch();
+            default -> throw failParserLexerMismatch();
         };
 
         var expression = regex.getText();
@@ -337,7 +340,7 @@ public class JsonPathCompilerPass {
             .map(this::transformLogicalExpression)
             .toList();
 
-        return expressions.size() == 1 ? expressions.getFirst()
+        return expressions.size() == 1 ? expressions.get(0)
             : new AndFilterNode(expressions);
     }
 

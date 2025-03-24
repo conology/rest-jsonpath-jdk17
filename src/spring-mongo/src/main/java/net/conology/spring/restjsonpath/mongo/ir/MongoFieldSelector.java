@@ -17,7 +17,7 @@ public final class MongoFieldSelector {
     }
 
     public String getFieldName() {
-        return path.isEmpty() ? "" : path.getLast();
+        return path.isEmpty() ? "" : path.get(path.size() - 1);
     }
 
     public List<String> getPath() {

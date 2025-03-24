@@ -57,7 +57,7 @@ public class JsonPathCriteriaCompiler {
             .toList();
 
         if (queries.size() == 1) {
-            return queries.getFirst();
+            return queries.get(0);
         }
 
         return new Criteria().orOperator(queries);
@@ -79,9 +79,10 @@ public class JsonPathCriteriaCompiler {
     }
 
     private void guardInvalidTopLevelQuery(MongoSelector ir) {
-        switch (ir) {
-            case MongoAllOfSelector allOf -> guardInvalidTopLevelQuery(allOf);
-            case MongoPropertyCondition condition -> guardInvalidTopLevelQuery(condition);
+        if (ir instanceof MongoAllOfSelector allOf) {
+            guardInvalidTopLevelQuery(allOf);
+        } else if (ir instanceof MongoPropertyCondition condition) {
+            guardInvalidTopLevelQuery(condition);
         }
     }
 

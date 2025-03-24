@@ -9,10 +9,11 @@ public abstract class AbstractMongoTestPostProcessor implements PostProcessor<Mo
 
     @Override
     public void accept(MongoSelector ast) {
-        switch (ast) {
-            case MongoAllOfSelector allOfNode ->
-                allOfNode.getTests().forEach(this::accept);
-            case MongoPropertyCondition testNode -> accept(testNode);
+        if (ast instanceof MongoAllOfSelector allOfNode) {
+            allOfNode.getTests().forEach(this::accept);
+        }
+        else if (ast instanceof MongoPropertyCondition testNode) {
+            accept(testNode);
         }
     }
 
