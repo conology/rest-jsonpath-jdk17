@@ -110,8 +110,7 @@ public class NestedValueTestCompiler {
                 var testNode = parent.compileTestNode(filterNode);
                 if (testNode instanceof MongoAllOfSelector allOf) {
                     propertyTests.addAll(allOf.getTests());
-                }
-                else if (testNode instanceof MongoPropertyCondition propertyTest) {
+                } else if (testNode instanceof MongoPropertyCondition propertyTest) {
                     propertyTests.add(propertyTest);
                 }
             } else {
